@@ -11,12 +11,14 @@
 
 <body>
     <div id="main">
-        <textarea id="message" type="text" rows=20 autofocus></textarea><br />
+        <label>Password</label> <input id="passwd" style="width: auto;" /><br>
+        <label>Message</label><textarea id="message" type="text" rows=20 autofocus></textarea><br />
         <button onclick="on_send_click()">SEND</button>
     </div>
 
     <script>
         var input_area = document.getElementById('message')
+        var passwd_input = document.getElementById('passwd')
 
         input_area.onkeydown = (e) => {
             e = e || window.event
@@ -26,10 +28,14 @@
         }
 
         function on_send_click() {
+            if (passwd_input.value === '') {
+                alert('Password is empty!')
+                return
+            }
             var http = new XMLHttpRequest();
             http.open('POST', '', true)
             http.setRequestHeader("Content-Type", "application/json")
-            data = { "data": input_area.value }
+            data = { "data": input_area.value, "password": passwd_input.value }
             http.send(JSON.stringify(data))
             input_area.value = ""
         }
