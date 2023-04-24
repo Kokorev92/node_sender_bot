@@ -3,7 +3,7 @@ const express = require('express')
 const settings = require('./settings.json')
 const Sequelize = require('sequelize')
 
-// const bot = new TelegramBot(settings.token, { polling: true })
+const bot = new TelegramBot(settings.token, { polling: true })
 var app = express()
 
 const sequelize = new Sequelize({
@@ -29,12 +29,10 @@ const users_db = sequelize.define("users", {
     }
 )
 
-async function get_db_data() {
-    const users_list = await users_db.findAll()
+async function get_user(pass) {
+    let user = await users_db.findOne({ where: { pass: `${pass}` } })
 
-    users_list.forEach(elem => {
-        console.log(elem.id + ' ' + elem.t_login + ' ' + elem.pass)
-    })
+    return user
 }
 
 async function delete_user(id) {
@@ -54,21 +52,24 @@ async function add_user(id, login, password) {
         })
 }
 
-// bot.onText(/\/start/, (msg) => {
-//     const id = msg.chat.id
-//     bot.sendMessage(id, 'Привет ' + msg.chat.username)
-//     // TODO: add user to database
-// })
+bot.onText(/\/start/, (msg) => {
+    const id = msg.chat.id
+    bot.sendMessage(id, 'Привет! Для регистрации в боте пришли: /reg <ваш_пароль>')
+
+})
+
+bot.onText(/\/reg (.+)/, (msg, match) => {
+    add_user(msg.chat.id, msg.chat.username, match[1]).then(res => {
+        bot.sendMessage(msg.chat.id, `Поздравляем, ${msg.chat.username}! Вы успешно зарегестрированы и можете пересылать сообщения через http://kokorev-test:8020/`)
+    })
+})
 
 
-// bot.onText(/\/stop/, (msg) => {
-//     const id = msg.chat.id
-//     bot.sendMessage(id, 'До свидания!')
-//     delete_user(id)
-// })
-
-// add_user(12345, 'User', 'pas1234')
-// delete_user(12345)
+bot.onText(/\/stop/, (msg) => {
+    const id = msg.chat.id
+    bot.sendMessage(id, 'До свидания!')
+    delete_user(id)
+})
 
 app.use(express.static(__dirname + "/public"))
 app.use(express.json())
@@ -78,7 +79,10 @@ app.listen(8000)
 app.post('/', (req, res) => {
     console.log(req.body)
     if (req.body) {
-        // bot.sendMessage(settings.id, req.body.data)
+        get_user(req.body.password).then((user) => {
+            bot.sendMessage(user.id, req.body.data)
+        })
+            .catch(err => { })
     }
     res.send()
 })
