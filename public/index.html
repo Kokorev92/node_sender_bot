@@ -1,12 +1,10 @@
 <html>
-<script type="text/javascript">
-
-
-</script>
 
 <head>
     <title>RESENDER</title>
     <meta charset="utf-8">
+    <link href="css/toast.min.css" rel="stylesheet">
+    <script src="js/toast.min.js"></script>
 </head>
 
 <body>
@@ -32,12 +30,38 @@
                 alert('Password is empty!')
                 return
             }
-            var http = new XMLHttpRequest();
-            http.open('POST', '', true)
-            http.setRequestHeader("Content-Type", "application/json")
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '', true)
+            xhr.setRequestHeader("Content-Type", "application/json")
             data = { "data": input_area.value, "password": passwd_input.value }
-            http.send(JSON.stringify(data))
+            xhr.send(JSON.stringify(data))
             input_area.value = ""
+
+            xhr.onload = () => {
+                console.log(xhr.response)
+                let response = JSON.parse(xhr.response)
+                if (response.status == 'AUTH_ERROR') {
+                    console.log('Authentifaction error')
+                    new Toast({
+                        title: false,
+                        text: 'Неверный пароль!',
+                        theme: 'danger',
+                        autohide: true,
+                        interval: 3000
+                    });
+                }
+                if (response.status == 'OK') {
+                    console.log('Message resended')
+                    new Toast({
+                        title: false,
+                        text: 'Отпрвлено!',
+                        theme: 'success',
+                        autohide: true,
+                        interval: 3000
+                    });
+                }
+            }
+
         }
 
     </script>
