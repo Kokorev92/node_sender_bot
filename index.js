@@ -11,43 +11,49 @@ const sequelize = new Sequelize({
     storage: 'bot.db'
 })
 
-
+const users_db = sequelize.define("users", {
+    id: {
+        type: Sequelize.INTEGER,
+        primaryKey: true
+    },
+    t_login: {
+        type: Sequelize.STRING
+    },
+    pass: {
+        type: Sequelize.STRING
+    }
+},
+    {
+        freezeTableName: true,
+        timestamps: false
+    }
+)
 
 async function get_db_data() {
-    const users_db = sequelize.define("users", {
-        id: {
-            type: Sequelize.INTEGER,
-            primaryKey: true
-        },
-        t_login: {
-            type: Sequelize.STRING
-        },
-        pass: {
-            type: Sequelize.STRING
-        }
-    },
-        {
-            freezeTableName: true,
-            timestamps: false
-        }
-    )
-
-    // const usr = await users_db.create({
-    //     id: 111111,
-    //     t_login: 'pidr',
-    //     pass: 'govnoed'
-    // })
-
     const users_list = await users_db.findAll()
-
-    sequelize.close()
 
     users_list.forEach(elem => {
         console.log(elem.id + ' ' + elem.t_login + ' ' + elem.pass)
     })
 }
 
-get_db_data()
+async function delete_user(id) {
+    await users_db.destroy({
+        where: {
+            id: id
+        }
+    })
+}
+
+async function add_user(id, login, password) {
+    await users_db.create({ id: id, t_login: login, pass: password })
+        .catch(err => {
+            if (err.name == 'SequelizeUniqueConstraintError') {
+                console.log('User already exists')
+            }
+        })
+}
+
 // bot.onText(/\/start/, (msg) => {
 //     const id = msg.chat.id
 //     bot.sendMessage(id, 'Привет ' + msg.chat.username)
@@ -58,8 +64,11 @@ get_db_data()
 // bot.onText(/\/stop/, (msg) => {
 //     const id = msg.chat.id
 //     bot.sendMessage(id, 'До свидания!')
-//     // TODO: delete user from database 
+//     delete_user(id)
 // })
+
+// add_user(12345, 'User', 'pas1234')
+// delete_user(12345)
 
 app.use(express.static(__dirname + "/public"))
 app.use(express.json())
