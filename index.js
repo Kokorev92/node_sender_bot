@@ -44,7 +44,7 @@ bot.onText(/\/start/, (msg) => {
 bot.onText(/\/reg (.+)/, (msg, match) => {
     users_db.create({ id: msg.chat.id, t_login: msg.chat.username, pass: match[1] }).then(res => {
         bot.sendMessage(msg.chat.id,
-            `Поздравляем, ${msg.chat.username}! Вы успешно зарегестрированы и можете пересылать сообщения через http://kokorev-test:8020/`)
+            `Поздравляем, ${msg.chat.username}! Вы успешно зарегестрированы и можете пересылать сообщения через http://bot.kokorev-test.ru/`)
     })
         .catch(err => {
             if (err.name === 'SequelizeUniqueConstraintError') {
@@ -65,6 +65,12 @@ bot.onText(/\/stop/, (msg) => {
     }).catch(err => {
         bot.sendMessage(msg.chat.id, `Вы не зарегистрированы!`)
     })
+})
+
+bot.onText(/\/help/, (msg) => {
+    bot.sendMessage(msg.chat.id, 'Бот для пересылки сообщения из веб-формы в Телеграм. Нужен для обхода блокировок Телеграм на рабочем месте.' +
+        'Обратите внимание, что пока для пересылки доступен только текст и пересылка сообщения идёт в одну сторону - из веб в этого бота.' +
+        '\nСписок команд:\n /start - начать работу\n /stop - остановить бота\n /reg <пароль> - зарегестрироваться с паролем для пересылки\n /help - показать эту справку')
 })
 
 app.use(express.static(__dirname + "/public"))
