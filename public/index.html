@@ -9,7 +9,9 @@
 
 <body>
     <div id="main">
-        <label>Password</label> <input id="passwd" style="width: auto;" /><br>
+        <label>Password</label> <input type="password" id="passwd" style="width: auto;" /><input type="button"
+            value="Show" onclick="show_hide(this)">
+        </input><br>
         <label>Message</label><textarea id="message" type="text" rows=20 autofocus></textarea><br />
         <button onclick="on_send_click()">SEND</button>
     </div>
@@ -41,10 +43,10 @@
                 console.log(xhr.response)
                 let response = JSON.parse(xhr.response)
                 if (response.status == 'AUTH_ERROR') {
-                    console.log('Authentifaction error')
+                    console.log('Authentification error')
                     new Toast({
                         title: false,
-                        text: 'Неверный пароль!',
+                        text: 'Invalid password!',
                         theme: 'danger',
                         autohide: true,
                         interval: 3000
@@ -54,7 +56,7 @@
                     console.log('Message resended')
                     new Toast({
                         title: false,
-                        text: 'Отпрвлено!',
+                        text: 'Sent!',
                         theme: 'success',
                         autohide: true,
                         interval: 3000
@@ -62,6 +64,16 @@
                 }
             }
 
+        }
+
+        function show_hide(target) {
+            if (passwd_input.getAttribute('type') == 'password') {
+                passwd_input.setAttribute('type', 'text')
+                target.value = 'Hide'
+            } else {
+                passwd_input.setAttribute('type', 'password')
+                target.value = 'Show'
+            }
         }
 
     </script>
